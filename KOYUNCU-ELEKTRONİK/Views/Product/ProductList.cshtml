@@ -9,10 +9,12 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/Scripts/jquery-1.10.2.min.js"></script>
-
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
 @*Sweet kullanmak icin*@
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-
+<script src="~/lib/jquery/dist/jquery.js"></script>
 
 
 <div class="container mt-3">
@@ -20,11 +22,13 @@
         Popup Ürün Ekle
     </button>
 </div>
-
+<div class="container mt-3">
+    <input type="text" class="form-control" placeholder="Aranan Ürünü Giriniz" id="aramaMotoru">
+</div>
 
 
 <table class="table" id="tbl_List">
-    <thead >
+    <thead>
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.ProductName)
@@ -36,7 +40,7 @@
             <th></th>
         </tr>
     </thead>
-    <tbody id="tblProducts">
+    <tbody id="tblPro">
         @foreach (var item in Model)
         {
             <tr>
@@ -70,12 +74,11 @@
                 </div>
                 <div class="form-group">
                     <label for="KategoriAd">Kategori</label>
-<select id="kategoriler" style="width:450px;height:50px;font-size:25px;">
+<select id="categories" style="width:450px;height:50px;font-size:25px;">
     @foreach (var category in ((List<Category>)TempData["Categories"]))
     {
     <option value="@category.CategoryId">@category.CategoryName</option>
     }
-    
     </select>
                 </div>
                 <div class="form-group">
@@ -83,7 +86,7 @@
                     <input class="form-control" data-val="true" id="ProductPrice" name="ProductPrice" type="text" value="">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success" onclick="return add()">Ekle</button>
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal" onclick="return add()">Ekle</button>
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Kapat</button>
                 </div>
             </div>
@@ -91,11 +94,17 @@
     </div>
 </div>
 
-
-
-
 <script>
-    
+
+    $(document).ready(function () {
+        $("#aramaMotoru").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+            $("#tblPro tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+
     function remove(id) {
         let find = document.getElementById(id).parentNode.parentNode;
         debugger
@@ -104,7 +113,7 @@
             url: "/Product/Delete?id=" + productId,
             type: "POST",
             dataType: "json",
-            success: function (data) {
+            success: function (data){
                 console.log(data);
                 find.parentNode.removeChild(find);
             },
@@ -118,50 +127,23 @@
         let xhr = new XMLHttpRequest;
         let productName = document.getElementById("ProductName").value;
         let productPrice = document.getElementById("ProductPrice").value;
-        let category = document.getElementById('kategoriler').value;
-        let categoryName = document.getElementById('kategoriler').innerText;
-        var tbl = document.getElementById("tblProducts");
-        alert(kategori);
+        let category = document.getElementById('categories').value;
+        var c = document.getElementById('categories');
+        var tbl = document.getElementById("tblPro");
+        var tablo = document.getElementById("tbl_List");
         xhr.open("POST", "http://localhost:47170/Product/Add?ProductName=" + productName + "&ProductPrice=" + productPrice + "&CategoryId=" + category, true);
         xhr.send();
         alert("Eklendi");
-        var product = document.createElement("tr");
-        var pN = document.createElement("td").textContent = productName;
-        var pP = document.createElement("td").textContent = productPrice;
-        var cN = document.createElement("td").textContent = categoryName;
-        product.appendChild(pN);
-        product.appendChild(pP);
-        product.appendChild(cN);
-        tbl.appendChild(product);
+        var tr = document.createElement("tr");
+        var td1 = document.createElement("td").innerText = productName;
+        var td2 = document.createElement("td").innerText = productPrice;
+        var td3 = document.createElement("td").innerText = c.innerText;
+        var btn = document.createElement("td").innerText = "<button style='background-color:red;color:white;'>Sil</button>";
+        tr.appendChild(td1, td2, td3, btn);
+        tbl.appendChild(tr);
+        tablo.appendChild(tbl);
+
     }
-    //function add() {
-    //    var productName = $('#newProductName').val();
-    //    var productPrice = $('#newProductPrice').val();
-    //    if (productName == "") {
-    //        swal("Ürün Bilgilerini eksik girdiniz", "", "error");
-    //    }
-    //    else {
-    //        $.ajax({
-    //            url: "/Products/Add",
-    //            type: "POST",
-    //            dataType: "json",
-    //            data: { ProductName: productName, CategoryId: 1, UnitPrice: productPrice },
-    //            success: function (data) {
-    //                var newRowContent = '<tr><td>' + data.ProductName + '</td>';
-    //                newRowContent += '<td>' + data.UnitPrice + '</td>';
-    //                newRowContent += '<td>' + data.CategoryId + '</td >';
-    //                newRowContent += "'<td><button class='btn btn-danger' onclick='Delete()'>Sil</button></td ></tr>'";
-    //                $("#tableIndex tbody").append(newRowContent);
-    //                $('[data-bs-dismiss="modal"]').click();
-    //                swal("Ürün Eklendi", "Tebrikler!", "success");
-    //                console.table(data);
-    //            },
-    //            error: function () {
-    //                console.log("error!");
-    //            }
-    //        })
-    //    }
-    //}
-    
+
 
 </script>
