@@ -23,8 +23,8 @@
 
 
 
-<table class="table" id="tbl_Liste">
-    <thead>
+<table class="table" id="tbl_List">
+    <thead >
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.ProductName)
@@ -36,7 +36,7 @@
             <th></th>
         </tr>
     </thead>
-    <tbody>
+    <tbody id="tblProducts">
         @foreach (var item in Model)
         {
             <tr>
@@ -70,7 +70,7 @@
                 </div>
                 <div class="form-group">
                     <label for="KategoriAd">Kategori</label>
-<select id="kategoriler" style="width:400px;height:50px;font-size:25px;">
+<select id="kategoriler" style="width:450px;height:50px;font-size:25px;">
     @foreach (var category in ((List<Category>)TempData["Categories"]))
     {
     <option value="@category.CategoryId">@category.CategoryName</option>
@@ -116,13 +116,23 @@
 
     function add() {
         let xhr = new XMLHttpRequest;
-        let urunadi = document.getElementById("ProductName").value;
-        let fiyat = document.getElementById("ProductPrice").value;
-        let kategori = document.getElementById('kategoriler').value;
+        let productName = document.getElementById("ProductName").value;
+        let productPrice = document.getElementById("ProductPrice").value;
+        let category = document.getElementById('kategoriler').value;
+        let categoryName = document.getElementById('kategoriler').innerText;
+        var tbl = document.getElementById("tblProducts");
         alert(kategori);
-        xhr.open("POST","http://localhost:47170/Product/Add?ProductName=" + urunadi + "&ProductPrice=" + fiyat + "&CategoryId=" + kategori , true);
+        xhr.open("POST", "http://localhost:47170/Product/Add?ProductName=" + productName + "&ProductPrice=" + productPrice + "&CategoryId=" + category, true);
         xhr.send();
         alert("Eklendi");
+        var product = document.createElement("tr");
+        var pN = document.createElement("td").textContent = productName;
+        var pP = document.createElement("td").textContent = productPrice;
+        var cN = document.createElement("td").textContent = categoryName;
+        product.appendChild(pN);
+        product.appendChild(pP);
+        product.appendChild(cN);
+        tbl.appendChild(product);
     }
     //function add() {
     //    var productName = $('#newProductName').val();
