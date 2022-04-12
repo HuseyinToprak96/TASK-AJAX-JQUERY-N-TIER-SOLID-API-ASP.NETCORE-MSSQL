@@ -23,7 +23,7 @@
 
 
 
-<table class="table">
+<table class="table" id="tbl_Liste">
     <thead>
         <tr>
             <th>
@@ -66,24 +66,24 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label for="KategoriAd">Ürün Adı</label>
-                    <input class="form-control" data-val="true" data-val-length="Ürün Adı alanı uzunluğu en fazla 50 ola bir dize olmalıdır." data-val-length-max="50" id="newProductName" name="newProductName" type="text" value="">
+                    <input class="form-control" data-val="true" data-val-length="Ürün Adı alanı uzunluğu en fazla 50 ola bir dize olmalıdır." data-val-length-max="50" id="ProductName" name="ProductName" type="text" value="">
                 </div>
                 <div class="form-group">
                     <label for="KategoriAd">Kategori</label>
-<select id="kategoriler">
+<select id="kategoriler" style="width:400px;height:50px;font-size:25px;">
     @foreach (var category in ((List<Category>)TempData["Categories"]))
     {
-    <option id="@category.CategoryId">@category.CategoryName</option>
+    <option value="@category.CategoryId">@category.CategoryName</option>
     }
     
     </select>
                 </div>
                 <div class="form-group">
                     <label for="KategoriAd">Fiyatı</label>
-                    <input class="form-control" data-val="true" id="newProductPrice" name="newProductPrice" type="text" value="">
+                    <input class="form-control" data-val="true" id="ProductPrice" name="ProductPrice" type="text" value="">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success" onclick="add()">Ekle</button>
+                    <button type="button" class="btn btn-success" onclick="return add()">Ekle</button>
                     <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Kapat</button>
                 </div>
             </div>
@@ -101,7 +101,7 @@
         debugger
         var productId = id.toString();
         $.ajax({
-            url: "Product/Delete?id=" + productId,
+            url: "/Product/Delete?id=" + productId,
             type: "POST",
             dataType: "json",
             success: function (data) {
@@ -114,34 +114,44 @@
         });
     }
 
-
     function add() {
-        var productName = $('#newProductName').val();
-        var productPrice = $('#newProductPrice').val();
-        if (productName == "") {
-            swal("Ürün Bilgilerini eksik girdiniz", "", "error");
-        }
-        else {
-            $.ajax({
-                url: "/Products/Add",
-                type: "POST",
-                dataType: "json",
-                data: { ProductName: productName, CategoryId: productCategory, UnitPrice: productPrice },
-                success: function (data) {
-                    var newRowContent = '<tr><td>' + data.ProductName + '</td>';
-                    newRowContent += '<td>' + data.CategoryId + '</td>';
-                    newRowContent += '<td>' + data.UnitPrice + '</td >';
-                    newRowContent += "'<td><button class='btn btn-danger' onclick='Delete()'>Sil</button></td ></tr>'";
-                    $("#tableIndex tbody").append(newRowContent);
-                    $('[data-bs-dismiss="modal"]').click();
-                    swal("Ürün Eklendi", "Tebrikler!", "success");
-                    console.table(data);
-                },
-                error: function () {
-                    console.log("error!");
-                }
-            })
-        }
+        let xhr = new XMLHttpRequest;
+        let urunadi = document.getElementById("ProductName").value;
+        let fiyat = document.getElementById("ProductPrice").value;
+        let kategori = document.getElementById('kategoriler').value;
+        alert(kategori);
+        xhr.open("POST","http://localhost:47170/Product/Add?ProductName=" + urunadi + "&ProductPrice=" + fiyat + "&CategoryId=" + kategori , true);
+        xhr.send();
+        alert("Eklendi");
     }
+    //function add() {
+    //    var productName = $('#newProductName').val();
+    //    var productPrice = $('#newProductPrice').val();
+    //    if (productName == "") {
+    //        swal("Ürün Bilgilerini eksik girdiniz", "", "error");
+    //    }
+    //    else {
+    //        $.ajax({
+    //            url: "/Products/Add",
+    //            type: "POST",
+    //            dataType: "json",
+    //            data: { ProductName: productName, CategoryId: 1, UnitPrice: productPrice },
+    //            success: function (data) {
+    //                var newRowContent = '<tr><td>' + data.ProductName + '</td>';
+    //                newRowContent += '<td>' + data.UnitPrice + '</td>';
+    //                newRowContent += '<td>' + data.CategoryId + '</td >';
+    //                newRowContent += "'<td><button class='btn btn-danger' onclick='Delete()'>Sil</button></td ></tr>'";
+    //                $("#tableIndex tbody").append(newRowContent);
+    //                $('[data-bs-dismiss="modal"]').click();
+    //                swal("Ürün Eklendi", "Tebrikler!", "success");
+    //                console.table(data);
+    //            },
+    //            error: function () {
+    //                console.log("error!");
+    //            }
+    //        })
+    //    }
+    //}
+    
 
 </script>
