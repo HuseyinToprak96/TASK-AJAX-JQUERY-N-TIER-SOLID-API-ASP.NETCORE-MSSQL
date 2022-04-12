@@ -1,0 +1,147 @@
+﻿@model IEnumerable<CoreLayer.Dtos.ProductCategoryDto>
+@using CoreLayer.Entitys
+@{
+    ViewData["Title"] = "ProductList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>ProductList</h1>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+
+@*Sweet kullanmak icin*@
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+
+
+<div class="container mt-3">
+    <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#NewProduct">
+        Popup Ürün Ekle
+    </button>
+</div>
+
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProductPrice)
+            </th>
+            <th>Category Name</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductPrice)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CategoryName)
+                </td>
+                <td><button onclick="remove(@item.ProductId)" id="@item.ProductId" style="background-color:red;color:white;">Sil</button></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+<div class="modal" id="NewProduct">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Ürün Ekleme Penceresi</h2>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="KategoriAd">Ürün Adı</label>
+                    <input class="form-control" data-val="true" data-val-length="Ürün Adı alanı uzunluğu en fazla 50 ola bir dize olmalıdır." data-val-length-max="50" id="newProductName" name="newProductName" type="text" value="">
+                </div>
+                <div class="form-group">
+                    <label for="KategoriAd">Kategori</label>
+<select id="kategoriler">
+    @foreach (var category in ((List<Category>)TempData["Categories"]))
+    {
+    <option id="@category.CategoryId">@category.CategoryName</option>
+    }
+    
+    </select>
+                </div>
+                <div class="form-group">
+                    <label for="KategoriAd">Fiyatı</label>
+                    <input class="form-control" data-val="true" id="newProductPrice" name="newProductPrice" type="text" value="">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" onclick="add()">Ekle</button>
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<script>
+    
+    function remove(id) {
+        let find = document.getElementById(id).parentNode.parentNode;
+        debugger
+        var productId = id.toString();
+        $.ajax({
+            url: "Product/Delete?id=" + productId,
+            type: "POST",
+            dataType: "json",
+            success: function (data) {
+                console.log(data);
+                find.parentNode.removeChild(find);
+            },
+            error: function () {
+                console.log("error!");
+            }
+        });
+    }
+
+
+    function add() {
+        var productName = $('#newProductName').val();
+        var productPrice = $('#newProductPrice').val();
+        if (productName == "") {
+            swal("Ürün Bilgilerini eksik girdiniz", "", "error");
+        }
+        else {
+            $.ajax({
+                url: "/Products/Add",
+                type: "POST",
+                dataType: "json",
+                data: { ProductName: productName, CategoryId: productCategory, UnitPrice: productPrice },
+                success: function (data) {
+                    var newRowContent = '<tr><td>' + data.ProductName + '</td>';
+                    newRowContent += '<td>' + data.CategoryId + '</td>';
+                    newRowContent += '<td>' + data.UnitPrice + '</td >';
+                    newRowContent += "'<td><button class='btn btn-danger' onclick='Delete()'>Sil</button></td ></tr>'";
+                    $("#tableIndex tbody").append(newRowContent);
+                    $('[data-bs-dismiss="modal"]').click();
+                    swal("Ürün Eklendi", "Tebrikler!", "success");
+                    console.table(data);
+                },
+                error: function () {
+                    console.log("error!");
+                }
+            })
+        }
+    }
+
+</script>
